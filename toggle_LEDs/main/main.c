@@ -30,6 +30,9 @@ const char* password = "password"; //connect both laptop and esp to the same wif
 
 // --- web control ---
 bool led_on = false;
+int red = 0;
+int green = 0;
+int blue = 0;
 
 // --- LOG --- 
 static const char *TAG = "ex";
@@ -41,7 +44,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 void start_webserver(void);
 esp_err_t toggle_handler(httpd_req_t *req);
 void led_init(void);
-void led_loop(void *pvParameters);
+void led_loop(void);
 
 // --- app_main : use functions ---
 void app_main(void) {
@@ -61,6 +64,19 @@ esp_err_t toggle_handler(httpd_req_t *req) {
     httpd_resp_sendstr(req, led_on ? "LED ON" : "LED OFF");
     return ESP_OK;
 }
+
+// esp_err_t color_handler(httpd_req_t *req) {
+//     led_on = !led_on;
+
+//     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+//     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET");
+//     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "*");
+
+//     httpd_resp_sendstr(req, red ? "LED ON" : "LED OFF");
+//     httpd_resp_sendstr(req, green ? "LED ON" : "LED OFF");
+//     httpd_resp_sendstr(req, blue ? "LED ON" : "LED OFF");
+//     return ESP_OK;
+// }
 
 void start_webserver() {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -161,7 +177,7 @@ void led_init() {
     ESP_LOGI(TAG, "LED strip initialized on GPIO %d with %d LEDs", LED_STRIP_GPIO, LED_STRIP_LENGTH);
 }
 
-void led_loop(void *pvParameters) {
+void led_loop() {
     uint8_t r = 0, g = 0, b = 0;
 
     while (1) {
@@ -169,9 +185,12 @@ void led_loop(void *pvParameters) {
         if (led_on) {
             // LED ON behavior
             for (int i = 0; i < LED_STRIP_LENGTH / 3; i++) {
-                r = (i * 30) % 255;
-                g = (255 - i * 30) % 255;
-                b = (i * 15) % 255;
+                // r = (i * 30) % 255;
+                // g = (255 - i * 30) % 255;
+                // b = (i * 15) % 255;
+                r = red;
+                g = green;
+                b = blue;
                 led_strip_set_pixel(strip, i, r, g, b);
             }
             led_strip_refresh(strip);
